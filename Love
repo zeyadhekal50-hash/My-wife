@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قصة حبنا | Ziad & Basmala</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .font-cursive {
+            font-family: 'Dancing Script', cursive;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e11d48;
+            border-radius: 4px;
+        }
+        .glass-card {
+            background: rgba(18, 18, 22, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(244, 63, 94, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin 8s linear infinite;
+        }
+        .paused {
+            animation-play-state: paused;
+        }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) scale(0.5) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.2) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        .floating-heart {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatUp 8s linear infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.6)); }
+            50% { filter: drop-shadow(0 0 18px rgba(244, 63, 94, 0.9)); }
+        }
+        .neon-pulse {
+            animation: pulseGlow 2.5s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-[#0a0a0c] text-white min-h-screen overflow-x-hidden selection:bg-rose-500 selection:text-white">
+
+    <!-- Floating Background Hearts -->
+    <div id="hearts-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- 1. LOCK SCREEN CONTAINER -->
+    <div id="lock-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0a0a0c]/95 backdrop-blur-xl transition-all duration-700">
+        <div class="glass-card max-w-sm w-full p-8 rounded-3xl text-center flex flex-col items-center shadow-2xl border border-rose-500/20 relative overflow-hidden">
+            <div class="absolute -top-12 -left-12 w-32 h-32 bg-rose-500/20 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-12 -right-12 w-32 h-32 bg-rose-600/20 rounded-full blur-3xl"></div>
+
+            <div class="w-16 h-16 bg-rose-500/10 border border-rose-500/30 rounded-2xl flex items-center justify-center mb-4 text-rose-500 neon-pulse">
+                <i data-lucide="heart" class="w-8 h-8 fill-rose-500"></i>
+            </div>
+
+            <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-300 to-rose-500 mb-1">
+                Ziad & Basmala
+            </h1>
+            <p class="text-xs text-rose-300/60 font-light tracking-widest mb-6 uppercase">✨ Our Eternal Love Story</p>
+
+            <form id="passcode-form" onsubmit="unlockSite(event)" class="w-full space-y-4">
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="passcode-input"
+                        placeholder="ادخلي الباسورد هنا (2192026)" 
+                        class="w-full px-4 py-3.5 bg-zinc-900/80 border border-rose-500/30 rounded-xl text-center text-rose-200 placeholder-zinc-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition duration-300 text-sm"
+                        required
+                    />
+                </div>
+                <button 
+                    type="submit" 
+                    class="w-full py-3.5 px-6 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-semibold rounded-xl shadow-lg shadow-rose-900/30 hover:shadow-rose-600/40 transform active:scale-95 transition duration-200 flex items-center justify-center gap-2 text-sm">
+                    <span>دوسي هنا يا ست البنات 🥰</span>
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                </button>
+            </form>
+            
+            <p id="error-msg" class="text-xs text-rose-500 mt-3 hidden animate-bounce">
+                الباسورد مش صح يا جميل! جربي تاني 😉
+            </p>
+        </div>
+    </div>
+
+    <!-- 2. MAIN APPLICATION CONTENT -->
+    <main id="main-content" class="relative z-10 max-w-md mx-auto px-4 py-8 pb-32 space-y-6 opacity-0 transition-opacity duration-1000">
+
+        <header class="text-center space-y-1">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-950/40 border border-rose-500/20 text-rose-400 text-xs mb-2">
+                <i data-lucide="heart" class="w-3.5 h-3.5 fill-rose-500"></i>
+                <span>حكايتنا الخاصة</span>
+            </div>
+            <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-rose-300 via-rose-400 to-pink-500">
+                Ziad & Basmala
+            </h1>
+            <p class="text-xs text-zinc-400 font-light">كل ثانية ومعاكي هي بداية جديدة ❤️</p>
+        </header>
+
+        <!-- ANNIVERSARY TIMER CARD -->
+        <section class="glass-card rounded-3xl p-6 text-center border border-rose-500/20 relative overflow-hidden">
+            <div class="text-xs text-rose-400/80 tracking-wider mb-2 font-medium flex items-center justify-center gap-1.5">
+                <i data-lucide="calendar-heart" class="w-4 h-4 text-rose-500"></i>
+                <span>أول يوم عرفتك فيه (21 سبتمبر 2026 - 6:00 ص) ❤️</span>
+            </div>
+            <div id="start-date-display" class="text-xs text-zinc-500 mb-5 font-mono">2026 - 09 - 21 | 06:00 AM</div>
+
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-zinc-900/60 border border-rose-500/10 rounded-2xl p-3 flex flex-col items-center">
+                    <span id="years" class="text-2xl font-bold text-rose-400 font-mono">0</span>
+                    <span class="text-[11px] text-zinc-400 mt-0.5">سنة</span>
+                </div>
+                <div class="bg-zinc-900/60 border border-rose-500/10 rounded-2xl p-3 flex flex-col items-center">
+                    <span id="months" class="text-2xl font-bold text-rose-400 font-mono">0</span>
+                    <span class="text-[11px] text-zinc-400 mt-0.5">شهر</span>
+                </div>
+                <div class="bg-zinc-900/60 border border-rose-500/10 rounded-2xl p-3 flex flex-col items-center">
+                    <span id="days" class="text-2xl font-bold text-rose-400 font-mono">0</span>
+                    <span class="text-[11px] text-zinc-400 mt-0.5">يوم</span>
+                </div>
+                <div class="bg-zinc-900/60 border border-rose-500/10 rounded-2xl p-3 flex flex-col items-center">
+                    <span id="hours" class="text-2xl font-bold text-rose-300 font-mono">0</span>
+                    <span class="text-[11px] text-zinc-400 mt-0.5">ساعة</span>
+                </div>
+                <div class="bg-zinc-900/60 border border-rose-500/10 rounded-2xl p-3 flex flex-col items-center">
+                    <span id="minutes" class="text-2xl font-bold text-rose-300 font-mono">0</span>
+                    <span class="text-[11px] text-zinc-400 mt-0.5">دقيقة</span>
+                </div>
+                <div class="bg-zinc-900/60 border border-rose-500/10 rounded-2xl p-3 flex flex-col items-center">
+                    <span id="seconds" class="text-2xl font-bold text-rose-500 font-mono animate-pulse">0</span>
+                    <span class="text-[11px] text-zinc-400 mt-0.5">ثانية</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- MUSIC PLAYER WIDGET -->
+        <section class="glass-card rounded-2xl p-4 border border-rose-500/20 flex items-center justify-between gap-4">
+            <div class="relative w-12 h-12 flex-shrink-0">
+                <div id="vinyl-disc" class="w-12 h-12 rounded-full bg-zinc-800 border-2 border-zinc-700 flex items-center justify-center animate-spin-slow paused shadow-md">
+                    <div class="w-4 h-4 rounded-full bg-rose-600 border border-zinc-900"></div>
+                </div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <i data-lucide="music" class="w-4 h-4 text-white opacity-75"></i>
+                </div>
+            </div>
+
+            <div class="flex-1 min-w-0">
+                <h4 class="text-xs font-bold text-rose-200 truncate">انت حلوة و حياتي بيكي حلوة ✨</h4>
+                <p class="text-[10px] text-zinc-400 truncate">محمود العسيلي ❤️</p>
+                <div class="w-full bg-zinc-800 rounded-full h-1.5 mt-2 overflow-hidden cursor-pointer" onclick="seekAudio(event)" id="progress-container">
+                    <div id="progress-bar" class="bg-gradient-to-r from-rose-500 to-pink-400 h-full w-0 transition-all"></div>
+                </div>
+            </div>
+
+            <button onclick="toggleAudio()" id="play-btn" class="w-10 h-10 rounded-full bg-rose-600/80 hover:bg-rose-500 text-white flex items-center justify-center shadow-lg transition active:scale-90 flex-shrink-0">
+                <i data-lucide="play" id="play-icon" class="w-5 h-5 ml-0.5"></i>
+            </button>
+
+            <audio id="bg-audio" loop preload="auto">
+                <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
+            </audio>
+        </section>
+
+        <!-- INTERACTIVE LETTERS -->
+        <section class="space-y-3">
+            <div class="flex items-center justify-between text-xs text-zinc-400 px-1">
+                <span class="flex items-center gap-1 font-semibold text-rose-300">
+                    <i data-lucide="mail-heart" class="w-4 h-4 text-rose-500"></i>
+                    جوابات ليكي... 💌
+                </span>
+                <span class="text-[10px] text-zinc-500">اضغطي لفتح الرسالة</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div onclick="openLetter(1)" class="glass-card hover:border-rose-500/40 rounded-2xl p-5 text-center cursor-pointer transition transform hover:-translate-y-1 active:scale-95 group flex flex-col items-center justify-center space-y-2">
+                    <div class="w-10 h-10 rounded-full bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 group-hover:bg-rose-500 group-hover:text-white transition duration-300">
+                        <i data-lucide="mail" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-rose-200">الرسالة الأولى 💖</span>
+                </div>
+
+                <div onclick="openLetter(2)" class="glass-card hover:border-rose-500/40 rounded-2xl p-5 text-center cursor-pointer transition transform hover:-translate-y-1 active:scale-95 group flex flex-col items-center justify-center space-y-2">
+                    <div class="w-10 h-10 rounded-full bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 group-hover:bg-rose-500 group-hover:text-white transition duration-300">
+                        <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-rose-200">وعد مني ليكي 💍</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- PHOTO GALLERY -->
+        <section class="space-y-3">
+            <div class="flex items-center justify-between text-xs text-zinc-400 px-1">
+                <span class="flex items-center gap-1 font-semibold text-rose-300">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-rose-500"></i>
+                    ذكرياتنا الغالية ✨
+                </span>
+                <span class="text-[10px] text-zinc-500">كل صورة وراها حكاية</span>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4">
+                <div class="glass-card rounded-2xl overflow-hidden border border-rose-500/20 group">
+                    <div class="relative h-64 overflow-hidden bg-zinc-950 flex items-center justify-center">
+                        <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80" alt="ذكرياتنا" class="w-full h-full object-cover" />
+                        <div class="absolute bottom-3 right-3 left-3 text-right bg-black/50 backdrop-blur-sm p-2 rounded-xl">
+                            <span class="text-xs font-semibold text-rose-200 block">أحلى صدفة في عمري ❤️</span>
+                            <span class="text-[10px] text-zinc-300">اللحظة دي هتفضل محفورة في قلبي</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl overflow-hidden border border-rose-500/20 group">
+                    <div class="relative h-64 overflow-hidden bg-zinc-950 flex items-center justify-center">
+                        <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=800&q=80" alt="ذكرياتنا" class="w-full h-full object-cover" />
+                        <div class="absolute bottom-3 right-3 left-3 text-right bg-black/50 backdrop-blur-sm p-2 rounded-xl">
+                            <span class="text-xs font-semibold text-rose-200 block">عالمي الخاص بيكي 🌌</span>
+                            <span class="text-[10px] text-zinc-300">ضحكتك هي السبب في كل حاجة حلوة</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FINAL MESSAGE -->
+        <section class="glass-card rounded-3xl p-6 text-center border border-rose-500/30 relative overflow-hidden space-y-4">
+            <div class="w-12 h-12 rounded-full bg-rose-500/20 mx-auto flex items-center justify-center text-rose-500 neon-pulse">
+                <i data-lucide="crown" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-lg font-bold text-rose-300">ملكة قلبي "بسمة" 🌹</h3>
+            <p class="text-xs text-zinc-300 leading-relaxed font-light px-2">
+                عايز أقولك إن حياتي بيكي بقت حلوة ومختلفة. إنتي الحب والضحكة والأمان بتاعي كله. ربنا يخليكي ليا وما يحرمش مني ضحكتك أبداً يا أجمل بسمة في الدنيا!
+            </p>
+            <div class="pt-2">
+                <span class="inline-block px-5 py-2 rounded-full bg-gradient-to-r from-rose-600 to-pink-600 text-white font-semibold text-xs shadow-md">
+                    بحبك للأبد يا بسمة 💖
+                </span>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL -->
+    <div id="letter-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+        <div class="glass-card max-w-sm w-full p-6 rounded-3xl border border-rose-500/30 relative transform scale-90 transition-transform duration-300" id="modal-content">
+            <button onclick="closeLetter()" class="absolute top-4 left-4 w-8 h-8 rounded-full bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+            <div class="w-10 h-10 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mb-4">
+                <i data-lucide="heart" class="w-5 h-5 fill-rose-500"></i>
+            </div>
+            <h3 id="modal-title" class="text-lg font-bold text-rose-300 mb-2"></h3>
+            <div id="modal-body" class="text-xs text-zinc-300 leading-relaxed space-y-2 mb-6 max-h-60 overflow-y-auto pl-1"></div>
+            <button onclick="closeLetter()" class="w-full py-2.5 bg-rose-600/80 hover:bg-rose-500 text-white rounded-xl text-xs font-semibold">
+                إغلاق الرسالة 💌
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        const CONFIG = {
+            passcode: "2192026",
+            startDate: "2026-09-21T06:00:00",
+        };
+
+        const LETTERS = {
+            1: {
+                title: "إنتي أجمل نعمة في حياتي 🌸",
+                body: "من أول يوم عرفتك فيه وحياتي اتغيرت للأحسن يا بسمة. وجودك معايا بيطمني وبيديني طاقة أواجه أي حاجة. كل يوم حبك بيزيد في قلبي أكتر."
+            },
+            2: {
+                title: "وعد مني ليكي 💍",
+                body: "بوعدك إني هفضل دايماً جنبكي، أكون ليكي السند والأمان والضحكة اللي على وشك. هفضل أحبك وأحافظ عليكِ لأخر يوم في عمري يا ست البنات."
+            }
+        };
+
+        function unlockSite(event) {
+            event.preventDefault();
+            const input = document.getElementById('passcode-input').value;
+            const lockScreen = document.getElementById('lock-screen');
+            const mainContent = document.getElementById('main-content');
+            const errorMsg = document.getElementById('error-msg');
+
+            if (input === CONFIG.passcode) {
+                lockScreen.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    lockScreen.style.display = 'none';
+                    mainContent.classList.remove('opacity-0');
+                }, 700);
+                playAudio();
+            } else {
+                errorMsg.classList.remove('hidden');
+                document.getElementById('passcode-input').value = '';
+            }
+        }
+
+        function updateTimer() {
+            const start = new Date(CONFIG.startDate).getTime();
+            const now = new Date().getTime();
+            const diff = now - start;
+
+            if (diff < 0) return;
+
+            const seconds = Math.floor((diff / 1000) % 60);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const daysTotal = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const years = Math.floor(daysTotal / 365);
+            const months = Math.floor((daysTotal % 365) / 30);
+            const days = Math.floor((daysTotal % 365) % 30);
+
+            document.getElementById('years').innerText = years;
+            document.getElementById('months').innerText = months;
+            document.getElementById('days').innerText = days;
+            document.getElementById('hours').innerText = hours;
+            document.getElementById('minutes').innerText = minutes;
+            document.getElementById('seconds').innerText = seconds;
+        }
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        const audio = document.getElementById('bg-audio');
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const vinylDisc = document.getElementById('vinyl-disc');
+        const progressBar = document.getElementById('progress-bar');
+
+        function toggleAudio() {
+            if (audio.paused) {
+                playAudio();
+            } else {
+                pauseAudio();
+            }
+        }
+
+        function playAudio() {
+            audio.play().then(() => {
+                vinylDisc.classList.remove('paused');
+                playIcon.setAttribute('data-lucide', 'pause');
+                lucide.createIcons();
+            }).catch(e => console.log("Autoplay prevented:", e));
+        }
+
+        function pauseAudio() {
+            audio.pause();
+            vinylDisc.classList.add('paused');
+            playIcon.setAttribute('data-lucide', 'play');
+            lucide.createIcons();
+        }
+
+        audio.ontimeupdate = () => {
+            if (audio.duration) {
+                const pct = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = pct + '%';
+            }
+        };
+
+        function seekAudio(e) {
+            const container = document.getElementById('progress-container');
+            const rect = container.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const width = rect.width;
+            if (audio.duration) {
+                audio.currentTime = (clickX / width) * audio.duration;
+            }
+        }
+
+        function openLetter(id) {
+            const modal = document.getElementById('letter-modal');
+            const modalContent = document.getElementById('modal-content');
+            const title = document.getElementById('modal-title');
+            const body = document.getElementById('modal-body');
+
+            if (LETTERS[id]) {
+                title.innerText = LETTERS[id].title;
+                body.innerText = LETTERS[id].body;
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modalContent.classList.remove('scale-90');
+                modalContent.classList.add('scale-100');
+            }
+        }
+
+        function closeLetter() {
+            const modal = document.getElementById('letter-modal');
+            const modalContent = document.getElementById('modal-content');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-90');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function createHearts() {
+            const container = document.getElementById('hearts-container');
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('floating-heart');
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                heart.style.animationDelay = (Math.random() * 5) + 's';
+                heart.style.fontSize = (Math.random() * 12 + 10) + 'px';
+                heart.style.opacity = Math.random() * 0.7 + 0.3;
+                container.appendChild(heart);
+            }
+        }
+
+        window.onload = function() {
+            lucide.createIcons();
+            createHearts();
+        };
+    </script>
+</body>
+</html>
